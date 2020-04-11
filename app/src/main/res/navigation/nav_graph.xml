@@ -11,7 +11,7 @@
     <fragment
         android:id="@+id/navigation_cameraFragment"
         android:name="com.mancel.yann.offsetcam.views.fragments.CameraFragment"
-        android:label="@string/navigation_capera_fragment_title"
+        android:label="@string/navigation_camera_fragment_title"
         tools:layout="@layout/fragment_camera" />
 
 </navigation>

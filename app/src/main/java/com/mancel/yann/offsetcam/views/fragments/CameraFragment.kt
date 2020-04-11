@@ -4,7 +4,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
+import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModel
+import kotlinx.android.synthetic.main.fragment_camera.view.*
 
 /**
  * Created by Yann MANCEL on 11/04/2020.
@@ -28,6 +30,22 @@ class CameraFragment : BaseFragment() {
     override fun configureDesign() {
         // LiveData
         this.configureCameraStateLiveData()
+    }
+
+    override fun showMessage(message: String) {
+        MessageTools.showMessageWithSnackbar(
+            this.mRootView.fragment_camera_CoordinatorLayout,
+            message
+        )
+    }
+
+    override fun actionAfterPermission() = this.bindCameraUseCase()
+
+    // -- Fragment --
+
+    override fun onResume() {
+        super.onResume()
+        this.bindCameraUseCase()
     }
 
     // -- LiveData --
@@ -56,5 +74,17 @@ class CameraFragment : BaseFragment() {
      */
     private fun updateUI(state: CameraState) {
 
+    }
+
+    // -- Camera --
+
+    /**
+     * Binds the camera to the use case
+     */
+    private fun bindCameraUseCase() {
+        if (this.checkCameraPermission()
+            && this.checkWriteExternalStoragePermission()) {
+            // todo: 11/04/2020 - Add action
+        }
     }
 }

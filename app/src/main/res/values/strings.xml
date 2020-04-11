@@ -1,7 +1,12 @@
+
 <resources>
+
     <string name="app_name">OffsetCam</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="navigation_capera_fragment_title">Camera</string>
+    <!-- nav_graph.xml -->
+    <string name="navigation_camera_fragment_title">Camera</string>
+
+    <!-- BaseFragment.kt -->
+    <string name="permission_denied">Permission denied</string>
+
 </resources>
