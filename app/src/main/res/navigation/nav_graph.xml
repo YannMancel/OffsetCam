@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_cameraFragment">
+
+    <fragment
+        android:id="@+id/navigation_cameraFragment"
+        android:name="com.mancel.yann.offsetcam.views.fragments.CameraFragment"
+        android:label="@string/navigation_capera_fragment_title"
+        tools:layout="@layout/fragment_camera" />
+
+</navigation>
