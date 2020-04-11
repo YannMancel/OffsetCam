@@ -32,13 +32,6 @@ class CameraFragment : BaseFragment() {
         this.configureCameraStateLiveData()
     }
 
-    override fun showMessage(message: String) {
-        MessageTools.showMessageWithSnackbar(
-            this.mRootView.fragment_camera_CoordinatorLayout,
-            message
-        )
-    }
-
     override fun actionAfterPermission() = this.bindCameraUseCase()
 
     // -- Fragment --
@@ -73,7 +66,10 @@ class CameraFragment : BaseFragment() {
      * @param state a [CameraState]
      */
     private fun updateUI(state: CameraState) {
-
+        when (state) {
+            is CameraState.SetupCamera -> TODO()
+            is CameraState.Error -> this.handleStateError(state)
+        }
     }
 
     // -- Camera --
@@ -86,5 +82,25 @@ class CameraFragment : BaseFragment() {
             && this.checkWriteExternalStoragePermission()) {
             // todo: 11/04/2020 - Add action
         }
+        else {
+            this.mViewModel.errorPermissionDenied()
+        }
+    }
+
+    // -- State --
+
+    /**
+     * Handles the state Error
+     * @param state a [CameraState.Error]
+     */
+    private fun handleStateError(state: CameraState.Error) {
+        // Message
+        MessageTools.showMessageWithSnackbar(
+            this.mRootView.fragment_camera_CoordinatorLayout,
+            state.errorMessage
+        )
+
+        // FAB
+        this.mRootView.fragment_camera_FAB.isEnabled = false
     }
 }

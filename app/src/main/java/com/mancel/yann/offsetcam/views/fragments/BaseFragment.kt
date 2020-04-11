@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.mancel.yann.offsetcam.R
 
 /**
  * Created by Yann MANCEL on 11/04/2020.
@@ -43,12 +42,6 @@ abstract class BaseFragment : Fragment() {
      */
     protected abstract fun configureDesign()
 
-    /**
-     * Shows the message in argument
-     * @param message a [String] that contains the message
-     */
-    protected abstract fun showMessage(message: String)
-
     // -- Fragment --
 
     override fun onCreateView(
@@ -75,9 +68,6 @@ abstract class BaseFragment : Fragment() {
             REQUEST_CODE_PERMISSION_WRITE_EXTERNAL_STORAGE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.actionAfterPermission()
-                }
-                else {
-                    this.showMessage(this.getString(R.string.permission_denied))
                 }
             }
 

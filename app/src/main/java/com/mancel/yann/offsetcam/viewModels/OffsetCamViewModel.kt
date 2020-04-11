@@ -1,5 +1,6 @@
 package com.mancel.yann.offsetcam.viewModels
 
+import androidx.camera.core.CameraSelector
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,9 @@ class OffsetCamViewModel : ViewModel() {
 
     private var mCameraState: MutableLiveData<CameraState>? = null
 
+    private var mIsSwitchCameraEnable = true
+    private var mCameraLensDirection: Int = CameraSelector.LENS_FACING_FRONT
+
     // METHODS -------------------------------------------------------------------------------------
 
     /**
@@ -29,5 +33,16 @@ class OffsetCamViewModel : ViewModel() {
             this.mCameraState = MutableLiveData<CameraState>()
         }
         return this.mCameraState!!
+    }
+
+    /**
+     * Manages the permission denied
+     */
+    fun errorPermissionDenied() {
+        this.mCameraState?.value = CameraState.Error(
+            errorMessage = "Permission denied: Cannot take pictures!",
+            isVisibleSwitchCamera = this.mIsSwitchCameraEnable,
+            cameraLensDirection = this.mCameraLensDirection
+        )
     }
 }
