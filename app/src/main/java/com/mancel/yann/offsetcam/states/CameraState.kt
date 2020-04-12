@@ -10,23 +10,31 @@ import androidx.camera.core.CameraSelector
 sealed class CameraState(
     val mIsEnableButton: Boolean = false,
     val mIsVisibleSwitchCamera: Boolean = false,
-    val mCameraLensDirection: Int = CameraSelector.LENS_FACING_FRONT
+    val mLensFacing: Int = CameraSelector.LENS_FACING_BACK
 ) {
 
     // CLASSES -------------------------------------------------------------------------------------
 
     class SetupCamera(val isVisibleSwitchCamera: Boolean,
-                      val cameraLensDirection: Int
+                      val lensFacing: Int
     ) : CameraState(
         mIsVisibleSwitchCamera = isVisibleSwitchCamera,
-        mCameraLensDirection = cameraLensDirection
+        mLensFacing = lensFacing
+    )
+
+    class PreviewReady(val isVisibleSwitchCamera: Boolean,
+                       val lensFacing: Int
+    ) : CameraState(
+        mIsEnableButton = true,
+        mIsVisibleSwitchCamera = isVisibleSwitchCamera,
+        mLensFacing = lensFacing
     )
 
     class Error(val errorMessage: String,
                 val isVisibleSwitchCamera: Boolean,
-                val cameraLensDirection: Int
+                val lensFacing: Int
     ) : CameraState(
         mIsVisibleSwitchCamera = isVisibleSwitchCamera,
-        mCameraLensDirection = cameraLensDirection
+        mLensFacing = lensFacing
     )
 }

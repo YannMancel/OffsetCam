@@ -20,9 +20,9 @@
         android:layout_marginStart="@dimen/margin_little"
         android:layout_marginEnd="@dimen/margin_little">
 
-        <!-- TextureView: Camera -->
-        <TextureView
-            android:id="@+id/fragment_camera_TextureView"
+        <!-- PreviewView: Camera -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/fragment_camera_PreviewView"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintTop_toTopOf="parent"

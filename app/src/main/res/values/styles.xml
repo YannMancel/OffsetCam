@@ -13,7 +13,7 @@
 
     <!-- FAB style -->
     <style name="FABStyle" parent="@style/Widget.MaterialComponents.FloatingActionButton">
-        <item name="backgroundTint">@color/colorPrimary</item>
+        <item name="backgroundTint">@drawable/button_state</item>
     </style>
 
 </resources>

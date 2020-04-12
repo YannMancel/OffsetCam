@@ -20,7 +20,7 @@ class OffsetCamViewModel : ViewModel() {
     private var mCameraState: MutableLiveData<CameraState>? = null
 
     private var mIsSwitchCameraEnable = true
-    private var mCameraLensDirection: Int = CameraSelector.LENS_FACING_FRONT
+    private var mLensFacing: Int = CameraSelector.LENS_FACING_BACK
 
     // METHODS -------------------------------------------------------------------------------------
 
@@ -42,7 +42,27 @@ class OffsetCamViewModel : ViewModel() {
         this.mCameraState?.value = CameraState.Error(
             errorMessage = "Permission denied: Cannot take pictures!",
             isVisibleSwitchCamera = this.mIsSwitchCameraEnable,
-            cameraLensDirection = this.mCameraLensDirection
+            lensFacing = this.mLensFacing
+        )
+    }
+
+    /**
+     * Manages the setup of the camera
+     */
+    fun setupCamera() {
+        this.mCameraState?.value = CameraState.SetupCamera(
+            isVisibleSwitchCamera = this.mIsSwitchCameraEnable,
+            lensFacing = this.mLensFacing
+        )
+    }
+
+    /**
+     * Manages the preview ready
+     */
+    fun previewReady() {
+        this.mCameraState?.value = CameraState.PreviewReady(
+            isVisibleSwitchCamera = this.mIsSwitchCameraEnable,
+            lensFacing = this.mLensFacing
         )
     }
 }

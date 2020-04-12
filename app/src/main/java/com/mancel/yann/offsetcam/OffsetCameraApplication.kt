@@ -1,6 +1,8 @@
 package com.mancel.yann.offsetcam
 
 import android.app.Application
+import androidx.camera.camera2.Camera2Config
+import androidx.camera.core.CameraXConfig
 import timber.log.Timber
 
 /**
@@ -8,9 +10,9 @@ import timber.log.Timber
  * Name of the project: OffsetCam
  * Name of the package: com.mancel.yann.offsetcam
  *
- * An [Application] subclass.
+ * An [Application] subclass which implements [CameraXConfig.Provider].
  */
-class OffsetCameraApplication : Application() {
+class OffsetCameraApplication : Application(), CameraXConfig.Provider {
 
     // METHODS -------------------------------------------------------------------------------------
 
@@ -22,4 +24,8 @@ class OffsetCameraApplication : Application() {
         // Timber: Logger
         Timber.plant(Timber.DebugTree())
     }
+
+    // -- CameraXConfig.Provider interface --
+
+    override fun getCameraXConfig(): CameraXConfig = Camera2Config.defaultConfig()
 }
