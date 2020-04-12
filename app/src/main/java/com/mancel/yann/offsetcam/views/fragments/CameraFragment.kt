@@ -2,12 +2,8 @@ package com.mancel.yann.offsetcam.views.fragments
 
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Size
 import android.view.View
-import androidx.camera.core.AspectRatio
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -19,6 +15,8 @@ import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModel
 import kotlinx.android.synthetic.main.fragment_camera.view.*
 import timber.log.Timber
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.math.abs
 
 /**
@@ -40,6 +38,8 @@ class CameraFragment : BaseFragment() {
     private lateinit var mCameraProviderFuture: ListenableFuture<ProcessCameraProvider>
     private var mCamera: Camera? = null
     private var mPreview: Preview? = null
+    private var mImageCapture: ImageCapture? = null
+    private lateinit var mCameraExecutor: ExecutorService
 
     companion object {
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
@@ -52,7 +52,13 @@ class CameraFragment : BaseFragment() {
 
     override fun getFragmentLayout(): Int = R.layout.fragment_camera
 
-    override fun configureDesign() = this.configureCameraStateLiveData()
+    override fun configureDesign() {
+        // Listener
+        this.configureListeners()
+
+        // LiveData
+        this.configureCameraStateLiveData()
+    }
 
     override fun actionAfterPermission() = this.bindCameraUseCases()
 
@@ -61,9 +67,31 @@ class CameraFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Initialize our background executor
+        this.mCameraExecutor = Executors.newSingleThreadExecutor()
+
         // Wait for the views to be properly laid out
         this.mRootView.fragment_camera_PreviewView.post {
             this.mViewModel.setupCamera()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // Shut down our background executor
+        this.mCameraExecutor.shutdown()
+    }
+
+    // -- Listeners --
+
+    /**
+     * Configures the listeners
+     */
+    private fun configureListeners() {
+        // FAB
+        this.mRootView.fragment_camera_FAB.setOnClickListener {
+            this.takePicture()
         }
     }
 
@@ -151,7 +179,7 @@ class CameraFragment : BaseFragment() {
                                 this.unbindAll()
                             }
 
-                            this@CameraFragment.bindPreview(cameraProvider)
+                            this@CameraFragment.bindPreviewAndImageCapture(cameraProvider)
                         },
                         ContextCompat.getMainExecutor(this@CameraFragment.requireContext())
                     )
@@ -165,40 +193,47 @@ class CameraFragment : BaseFragment() {
     }
 
     /**
-     * Binds the [Preview]
+     * Binds the [Preview] and [ImageCapture]
      */
-    private fun bindPreview(cameraProvider: ProcessCameraProvider) {
+    private fun bindPreviewAndImageCapture(cameraProvider: ProcessCameraProvider) {
         // Metrics
         val metrics = DisplayMetrics().also {
             this.mRootView.fragment_camera_PreviewView.display.getRealMetrics(it)
         }
 
         // Ratio
-        val screenAspectRatio = this.aspectRatio(metrics.widthPixels, metrics.heightPixels)
+        val screenAspectRatio = this.getAspectRatio(metrics.widthPixels, metrics.heightPixels)
 
         // Resolution
-        val resolution = Size(metrics.widthPixels, metrics.heightPixels)
+        //val resolution = Size(metrics.widthPixels, metrics.heightPixels)
 
         // Rotation
         val rotation = this.mRootView.fragment_camera_PreviewView.display.rotation
-
-        // Preview
-        this.mPreview = Preview.Builder()
-                               .setTargetAspectRatio(screenAspectRatio)
-                               .setTargetRotation(rotation)
-                               .build()
 
         // CameraSelector
         val cameraSelector = CameraSelector.Builder()
                                            .requireLensFacing(this.mCameraState.mLensFacing)
                                            .build()
 
+        // Use case: Preview
+        this.mPreview = Preview.Builder()
+                               .setTargetAspectRatio(screenAspectRatio)
+                               .setTargetRotation(rotation)
+                               .build()
+
+        // Use case: Image Capture
+        this.mImageCapture = ImageCapture.Builder()
+                                         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                                         .setTargetAspectRatio(screenAspectRatio)
+                                         .setTargetRotation(rotation)
+                                         .build()
+
         try {
             // Camera connect to the Fragment's Lifecycle
             this.mCamera = cameraProvider.bindToLifecycle(
                 this.viewLifecycleOwner,
                 cameraSelector,
-                this.mPreview
+                this.mPreview, this.mImageCapture
             )
         } catch(e: Exception) {
             Timber.e("Use case binding failed: ${e.message}")
@@ -207,6 +242,31 @@ class CameraFragment : BaseFragment() {
         // PreviewView
         this.mPreview?.setSurfaceProvider(
             this.mRootView.fragment_camera_PreviewView.createSurfaceProvider(this.mCamera?.cameraInfo)
+        )
+    }
+
+    /**
+     * Takes a picture
+     */
+    private fun takePicture() {
+//        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File(""))
+
+        this.mImageCapture?.takePicture(
+            this.mCameraExecutor,
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+
+                    MessageTools.showMessageWithSnackbar(
+                        this@CameraFragment.mRootView.fragment_camera_CoordinatorLayout,
+                        "Take Picture"
+                    )
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    Timber.e("Image capture failed: ${exception.message}")
+                }
+            }
         )
     }
 
@@ -220,7 +280,7 @@ class CameraFragment : BaseFragment() {
      *  @param height   a [Int] that contains the preview height
      *  @return suitable aspect ratio
      */
-    private fun aspectRatio(width: Int, height: Int): Int {
+    private fun getAspectRatio(width: Int, height: Int): Int {
         val previewRatio = maxOf(width, height).toDouble() / minOf(width, height).toDouble()
 
         if (abs(previewRatio - RATIO_4_3_VALUE) <= abs(previewRatio - RATIO_16_9_VALUE)) {
