@@ -8,33 +8,36 @@ import androidx.camera.core.CameraSelector
  * Name of the package: com.mancel.yann.offsetcam.states
  */
 sealed class CameraState(
-    val mIsEnableButton: Boolean = false,
-    val mIsVisibleSwitchCamera: Boolean = false,
-    val mLensFacing: Int = CameraSelector.LENS_FACING_BACK
+    val _buttonEnable: Boolean = false,
+    val _switchCameraVisible: Boolean = false,
+    val _cameraLensFacing: Int = CameraSelector.LENS_FACING_BACK
 ) {
 
     // CLASSES -------------------------------------------------------------------------------------
 
-    class SetupCamera(val isVisibleSwitchCamera: Boolean,
-                      val lensFacing: Int
+    class SetupCamera(
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
     ) : CameraState(
-        mIsVisibleSwitchCamera = isVisibleSwitchCamera,
-        mLensFacing = lensFacing
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
     )
 
-    class PreviewReady(val isVisibleSwitchCamera: Boolean,
-                       val lensFacing: Int
+    class PreviewReady(
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
     ) : CameraState(
-        mIsEnableButton = true,
-        mIsVisibleSwitchCamera = isVisibleSwitchCamera,
-        mLensFacing = lensFacing
+        _buttonEnable = true,
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
     )
 
-    class Error(val errorMessage: String,
-                val isVisibleSwitchCamera: Boolean,
-                val lensFacing: Int
+    class Error(
+        val _errorMessage: String,
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
     ) : CameraState(
-        mIsVisibleSwitchCamera = isVisibleSwitchCamera,
-        mLensFacing = lensFacing
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
     )
 }

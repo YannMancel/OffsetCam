@@ -3,6 +3,7 @@ package com.mancel.yann.offsetcam.views.fragments
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -32,14 +33,15 @@ class CameraFragment : BaseFragment() {
 
     // FIELDS --------------------------------------------------------------------------------------
 
-    private lateinit var mViewModel: OffsetCamViewModel
-    private lateinit var mCameraState: CameraState
+    private lateinit var _viewModel: OffsetCamViewModel
+    private lateinit var _cameraState: CameraState
+    private var _oldSystemUiVisibility: Int = 0
 
-    private lateinit var mCameraProviderFuture: ListenableFuture<ProcessCameraProvider>
-    private var mCamera: Camera? = null
-    private var mPreview: Preview? = null
-    private var mImageCapture: ImageCapture? = null
-    private lateinit var mCameraExecutor: ExecutorService
+    private lateinit var _cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
+    private var _camera: Camera? = null
+    private var _preview: Preview? = null
+    private var _imageCapture: ImageCapture? = null
+    private lateinit var _cameraExecutor: ExecutorService
 
     companion object {
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
@@ -57,7 +59,7 @@ class CameraFragment : BaseFragment() {
         this.configureListeners()
 
         // LiveData
-        this.configureCameraStateLiveData()
+        this.configureCameraState()
     }
 
     override fun actionAfterPermission() = this.bindCameraUseCases()
@@ -68,19 +70,32 @@ class CameraFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize our background executor
-        this.mCameraExecutor = Executors.newSingleThreadExecutor()
+        this._cameraExecutor = Executors.newSingleThreadExecutor()
 
         // Wait for the views to be properly laid out
-        this.mRootView.fragment_camera_PreviewView.post {
-            this.mViewModel.setupCamera()
+        this._rootView.fragment_camera_PreviewView.post {
+            this._viewModel.setupCamera()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        this._oldSystemUiVisibility = this.requireActivity().window.decorView.systemUiVisibility
+        this.requireActivity().window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        (this.requireActivity() as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        this.requireActivity().window.decorView.systemUiVisibility = this._oldSystemUiVisibility
+        (this.requireActivity() as AppCompatActivity).supportActionBar?.show()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
 
         // Shut down our background executor
-        this.mCameraExecutor.shutdown()
+        this._cameraExecutor.shutdown()
     }
 
     // -- Listeners --
@@ -90,7 +105,7 @@ class CameraFragment : BaseFragment() {
      */
     private fun configureListeners() {
         // FAB
-        this.mRootView.fragment_camera_FAB.setOnClickListener {
+        this._rootView.fragment_camera_FAB.setOnClickListener {
             this.takePicture()
         }
     }
@@ -100,12 +115,12 @@ class CameraFragment : BaseFragment() {
     /**
      * Configures the [CameraState]
      */
-    private fun configureCameraStateLiveData() {
-        this.mViewModel = ViewModelProvider(this@CameraFragment).get(
+    private fun configureCameraState() {
+        this._viewModel = ViewModelProvider(this@CameraFragment).get(
                               OffsetCamViewModel::class.java
                           )
 
-        this.mViewModel.getCameraState().observe(
+        this._viewModel.getCameraState().observe(
             this.viewLifecycleOwner,
             Observer {
                 this.updateUI(it)
@@ -116,12 +131,12 @@ class CameraFragment : BaseFragment() {
     // -- UI --
 
     /**
-     * Updates the UI
+     * Updates the UI according a [CameraState]
      * @param state a [CameraState]
      */
     private fun updateUI(state: CameraState) {
         // Keep the current state
-        this.mCameraState = state
+        this._cameraState = state
 
         // Specific state
         when (state) {
@@ -133,7 +148,7 @@ class CameraFragment : BaseFragment() {
         // General state
         with(state) {
             // FAB
-            this@CameraFragment.mRootView.fragment_camera_FAB.isEnabled = this.mIsEnableButton
+            this@CameraFragment._rootView.fragment_camera_FAB.isEnabled = this._buttonEnable
         }
     }
 
@@ -155,8 +170,8 @@ class CameraFragment : BaseFragment() {
      */
     private fun handleStateError(state: CameraState.Error) {
         MessageTools.showMessageWithSnackbar(
-            this.mRootView.fragment_camera_CoordinatorLayout,
-            state.errorMessage
+            this._rootView.fragment_camera_CoordinatorLayout,
+            state._errorMessage
         )
     }
 
@@ -170,7 +185,7 @@ class CameraFragment : BaseFragment() {
             this.checkCameraPermission()
             && this.checkWriteExternalStoragePermission()
         ) {
-            this.mCameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
+            this._cameraProviderFuture = ProcessCameraProvider.getInstance(this.requireContext())
                 .apply {
                     this.addListener(
                         Runnable {
@@ -185,10 +200,10 @@ class CameraFragment : BaseFragment() {
                     )
                 }
 
-            this.mViewModel.previewReady()
+            this._viewModel.previewReady()
         }
         else {
-            this.mViewModel.errorPermissionDenied()
+            this._viewModel.errorPermissionDenied(this.requireContext())
         }
     }
 
@@ -198,7 +213,7 @@ class CameraFragment : BaseFragment() {
     private fun bindPreviewAndImageCapture(cameraProvider: ProcessCameraProvider) {
         // Metrics
         val metrics = DisplayMetrics().also {
-            this.mRootView.fragment_camera_PreviewView.display.getRealMetrics(it)
+            this._rootView.fragment_camera_PreviewView.display.getRealMetrics(it)
         }
 
         // Ratio
@@ -208,21 +223,21 @@ class CameraFragment : BaseFragment() {
         //val resolution = Size(metrics.widthPixels, metrics.heightPixels)
 
         // Rotation
-        val rotation = this.mRootView.fragment_camera_PreviewView.display.rotation
+        val rotation = this._rootView.fragment_camera_PreviewView.display.rotation
 
         // CameraSelector
         val cameraSelector = CameraSelector.Builder()
-                                           .requireLensFacing(this.mCameraState.mLensFacing)
+                                           .requireLensFacing(this._cameraState._cameraLensFacing)
                                            .build()
 
         // Use case: Preview
-        this.mPreview = Preview.Builder()
+        this._preview = Preview.Builder()
                                .setTargetAspectRatio(screenAspectRatio)
                                .setTargetRotation(rotation)
                                .build()
 
         // Use case: Image Capture
-        this.mImageCapture = ImageCapture.Builder()
+        this._imageCapture = ImageCapture.Builder()
                                          .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                                          .setTargetAspectRatio(screenAspectRatio)
                                          .setTargetRotation(rotation)
@@ -230,18 +245,19 @@ class CameraFragment : BaseFragment() {
 
         try {
             // Camera connect to the Fragment's Lifecycle
-            this.mCamera = cameraProvider.bindToLifecycle(
+            this._camera = cameraProvider.bindToLifecycle(
                 this.viewLifecycleOwner,
                 cameraSelector,
-                this.mPreview, this.mImageCapture
+                this._preview, this._imageCapture
             )
         } catch(e: Exception) {
             Timber.e("Use case binding failed: ${e.message}")
         }
 
         // PreviewView
-        this.mPreview?.setSurfaceProvider(
-            this.mRootView.fragment_camera_PreviewView.createSurfaceProvider(this.mCamera?.cameraInfo)
+        this._preview?.setSurfaceProvider(
+            //this._rootView.fragment_camera_PreviewView.createSurfaceProvider(this._camera?.cameraInfo)
+            this._rootView.fragment_camera_PreviewView.createSurfaceProvider()
         )
     }
 
@@ -251,14 +267,14 @@ class CameraFragment : BaseFragment() {
     private fun takePicture() {
 //        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File(""))
 
-        this.mImageCapture?.takePicture(
-            this.mCameraExecutor,
+        this._imageCapture?.takePicture(
+            this._cameraExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
                     super.onCaptureSuccess(image)
 
                     MessageTools.showMessageWithSnackbar(
-                        this@CameraFragment.mRootView.fragment_camera_CoordinatorLayout,
+                        this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
                         "Take Picture"
                     )
                 }

@@ -12,14 +12,14 @@ import com.mancel.yann.offsetcam.R
  * Name of the project: OffsetCam
  * Name of the package: com.mancel.yann.offsetcam.views.activities
  *
- * An [BaseActivity] subclass.
+ * A [BaseActivity] subclass.
  */
 class MainActivity : BaseActivity() {
 
     // FIELDS --------------------------------------------------------------------------------------
 
-    private lateinit var mNavController: NavController
-    private lateinit var mAppBarConfiguration: AppBarConfiguration
+    private lateinit var _navController: NavController
+    private lateinit var _appBarConfiguration: AppBarConfiguration
 
     // METHODS -------------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ class MainActivity : BaseActivity() {
     // -- Activity --
 
     override fun onSupportNavigateUp(): Boolean {
-        return this.mNavController.navigateUp(this.mAppBarConfiguration)
+        return this._navController.navigateUp(this._appBarConfiguration)
                 || super.onSupportNavigateUp()
     }
 
@@ -46,12 +46,12 @@ class MainActivity : BaseActivity() {
      */
     private fun configureActionBarForNavigation() {
         // NavController
-        this.mNavController = this.findNavController(R.id.activity_main_NavHostFragment)
+        this._navController = this.findNavController(R.id.activity_main_NavHostFragment)
 
         // AppBarConfiguration
-        this.mAppBarConfiguration = AppBarConfiguration(this.mNavController.graph)
+        this._appBarConfiguration = AppBarConfiguration(this._navController.graph)
 
         // Action bar
-        this.setupActionBarWithNavController(this.mNavController, this.mAppBarConfiguration)
+        this.setupActionBarWithNavController(this._navController, this._appBarConfiguration)
     }
 }

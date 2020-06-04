@@ -9,4 +9,7 @@
     <!-- BaseFragment.kt -->
     <string name="permission_denied">Permission denied</string>
 
+    <!-- OffsetCamViewModel.kt -->
+    <string name="error_camera_state">Permission denied: Cannot take pictures!</string>
+
 </resources>

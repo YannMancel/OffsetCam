@@ -21,7 +21,7 @@ abstract class BaseFragment : Fragment() {
 
     // FIELDS --------------------------------------------------------------------------------------
 
-    protected lateinit var mRootView: View
+    protected lateinit var _rootView: View
 
     companion object {
         const val REQUEST_CODE_PERMISSION_CAMERA = 1000
@@ -50,11 +50,11 @@ abstract class BaseFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        this.mRootView = inflater.inflate(this.getFragmentLayout(), container, false)
+        this._rootView = inflater.inflate(this.getFragmentLayout(), container, false)
 
         this.configureDesign()
 
-        return this.mRootView
+        return this._rootView
     }
 
     override fun onRequestPermissionsResult(
@@ -66,7 +66,7 @@ abstract class BaseFragment : Fragment() {
             // Access to the external storage or the camera of device
             REQUEST_CODE_PERMISSION_CAMERA,
             REQUEST_CODE_PERMISSION_WRITE_EXTERNAL_STORAGE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.isNotEmpty() && grantResults.first() == PackageManager.PERMISSION_GRANTED) {
                     this.actionAfterPermission()
                 }
             }
