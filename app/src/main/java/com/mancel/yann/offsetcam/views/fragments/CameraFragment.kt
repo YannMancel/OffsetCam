@@ -29,7 +29,11 @@ import kotlin.math.abs
  */
 class CameraFragment : BaseFragment() {
 
-    // See: https://github.com/android/camera-samples/blob/master/CameraXBasic
+    /*
+        See:
+            [1] https://codelabs.developers.google.com/codelabs/camerax-getting-started
+            [2] https://github.com/android/camera-samples/tree/master/CameraXBasic
+     */
 
     // FIELDS --------------------------------------------------------------------------------------
 
@@ -55,10 +59,7 @@ class CameraFragment : BaseFragment() {
     override fun getFragmentLayout(): Int = R.layout.fragment_camera
 
     override fun configureDesign() {
-        // Listener
         this.configureListeners()
-
-        // LiveData
         this.configureCameraState()
     }
 
@@ -256,7 +257,6 @@ class CameraFragment : BaseFragment() {
 
         // PreviewView
         this._preview?.setSurfaceProvider(
-            //this._rootView.fragment_camera_PreviewView.createSurfaceProvider(this._camera?.cameraInfo)
             this._rootView.fragment_camera_PreviewView.createSurfaceProvider()
         )
     }

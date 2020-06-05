@@ -27,5 +27,12 @@ class OffsetCameraApplication : Application(), CameraXConfig.Provider {
 
     // -- CameraXConfig.Provider interface --
 
+    /*
+        If you want fine control over when CameraX gets initialized,
+        you can implement the CameraXConfig.Provider interface in your Application class.
+        Note that most apps do not require this level of control.
+
+        See: https://developer.android.com/training/camerax/preview
+     */
     override fun getCameraXConfig(): CameraXConfig = Camera2Config.defaultConfig()
 }
