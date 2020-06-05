@@ -13,6 +13,7 @@
     <!-- FAB style -->
     <style name="FABStyle" parent="@style/Widget.MaterialComponents.FloatingActionButton">
         <item name="backgroundTint">@drawable/button_state</item>
+        <item name="tint">@android:color/white</item>
     </style>
 
 </resources>
