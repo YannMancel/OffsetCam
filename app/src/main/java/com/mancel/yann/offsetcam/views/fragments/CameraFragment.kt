@@ -269,7 +269,6 @@ class CameraFragment : BaseFragment() {
             this._cameraExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    super.onCaptureSuccess(image)
 
                     MessageTools.showMessageWithSnackbar(
                         this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
@@ -282,7 +281,10 @@ class CameraFragment : BaseFragment() {
                         See: ImageCapture.OnImageCapturedCallback class
                      */
                     image.use {
-                        this@CameraFragment._viewModel.savePicture(image.planes[0].buffer)
+                        this@CameraFragment._viewModel.savePicture(
+                            it.planes[0].buffer,
+                            it.imageInfo.rotationDegrees
+                        )
                     }
                 }
 

@@ -7,7 +7,7 @@ import android.graphics.*
  * Name of the project: OffsetCam
  * Name of the package: com.mancel.yann.offsetcam.utils
  */
-object Graphics {
+object GraphicsTools {
 
     // FIELDS --------------------------------------------------------------------------------------
 

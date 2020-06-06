@@ -1,14 +1,19 @@
 package com.mancel.yann.offsetcam.viewModels
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import androidx.camera.core.CameraSelector
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
-import com.mancel.yann.offsetcam.utils.Graphics
+import com.mancel.yann.offsetcam.utils.FileTools
+import com.mancel.yann.offsetcam.utils.GraphicsTools
+import timber.log.Timber
+import java.io.FileOutputStream
 import java.nio.ByteBuffer
 
 /**
@@ -78,14 +83,50 @@ class OffsetCamViewModel : ViewModel() {
 
     /**
      * Saves the picture thanks to the "Image Capture" use case of CameraX
-     * @param buffer a [ByteBuffer]
+     * @param buffer          a [ByteBuffer]
+     * @param rotationDegrees an [Int] that contains the orientation of picture
      */
-    fun savePicture(buffer: ByteBuffer) {
+    fun savePicture(buffer: ByteBuffer, rotationDegrees: Int) {
         // Decodes ByteArray to Bitmap
         val bytes = ByteArray(buffer.remaining())
         buffer.get(bytes)
+        
         val initialBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
 
-        val finalBitmap = Graphics.filterBitmap(initialBitmap)
+        // Rotation of picture
+        val tempBitmap =
+            if (rotationDegrees != 0) {
+                val matrix = Matrix().apply {
+                    postRotate(rotationDegrees.toFloat())
+                }
+                Bitmap.createBitmap(
+                    initialBitmap,
+                    0,
+                    0,
+                    initialBitmap.width,
+                    initialBitmap.height,
+                    matrix,
+                    true
+                )
+            }
+            else {
+                initialBitmap
+            }
+
+        // Filter
+        val finalBitmap = GraphicsTools.filterBitmap(tempBitmap)
+
+        // Save picture
+        val outputFile = FileTools.createPictureFile()
+
+        FileOutputStream(outputFile).use { fos ->
+            finalBitmap.compress(
+                Bitmap.CompressFormat.JPEG,
+                95,
+                fos
+            )
+        }
+
+        Timber.d("Saved file at $outputFile")
     }
 }

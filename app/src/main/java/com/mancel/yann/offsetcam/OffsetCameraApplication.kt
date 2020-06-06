@@ -3,6 +3,7 @@ package com.mancel.yann.offsetcam
 import android.app.Application
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraXConfig
+import com.mancel.yann.offsetcam.utils.FileTools
 import timber.log.Timber
 
 /**
@@ -14,6 +15,12 @@ import timber.log.Timber
  */
 class OffsetCameraApplication : Application(), CameraXConfig.Provider {
 
+    // FIELDS --------------------------------------------------------------------------------------
+
+    companion object {
+        val galleryDir by lazy { FileTools.getGalleryFile() }
+    }
+
     // METHODS -------------------------------------------------------------------------------------
 
     // -- Application --
@@ -23,6 +30,11 @@ class OffsetCameraApplication : Application(), CameraXConfig.Provider {
 
         // Timber: Logger
         Timber.plant(Timber.DebugTree())
+
+        // Gallery folder
+        if (!galleryDir.exists()) {
+            galleryDir.mkdirs()
+        }
     }
 
     // -- CameraXConfig.Provider interface --
