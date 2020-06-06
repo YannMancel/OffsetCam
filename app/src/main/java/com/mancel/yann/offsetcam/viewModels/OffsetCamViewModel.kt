@@ -1,12 +1,15 @@
 package com.mancel.yann.offsetcam.viewModels
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import androidx.camera.core.CameraSelector
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
+import com.mancel.yann.offsetcam.utils.Graphics
+import java.nio.ByteBuffer
 
 /**
  * Created by Yann MANCEL on 11/04/2020.
@@ -25,6 +28,7 @@ class OffsetCamViewModel : ViewModel() {
 
     // METHODS -------------------------------------------------------------------------------------
 
+    // -- LiveData --
     /**
      * Gets the [LiveData] of [CameraState]
      * @return the [LiveData] of [CameraState]
@@ -35,6 +39,8 @@ class OffsetCamViewModel : ViewModel() {
         }
         return this._cameraState!!
     }
+
+    // -- CameraState --
 
     /**
      * Manages the permission denied
@@ -66,5 +72,20 @@ class OffsetCamViewModel : ViewModel() {
             switchCameraVisible = this._switchCameraVisible,
             cameraLensFacing = this._cameraLensFacing
         )
+    }
+
+    // -- Image --
+
+    /**
+     * Saves the picture thanks to the "Image Capture" use case of CameraX
+     * @param buffer a [ByteBuffer]
+     */
+    fun savePicture(buffer: ByteBuffer) {
+        // Decodes ByteArray to Bitmap
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+        val initialBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, null)
+
+        val finalBitmap = Graphics.filterBitmap(initialBitmap)
     }
 }

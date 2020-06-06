@@ -31,8 +31,9 @@ class CameraFragment : BaseFragment() {
 
     /*
         See:
-            [1] https://codelabs.developers.google.com/codelabs/camerax-getting-started
-            [2] https://github.com/android/camera-samples/tree/master/CameraXBasic
+            [1] https://developer.android.com/training/camerax
+            [2] https://codelabs.developers.google.com/codelabs/camerax-getting-started
+            [3] https://github.com/android/camera-samples/tree/master/CameraXBasic
      */
 
     // FIELDS --------------------------------------------------------------------------------------
@@ -163,7 +164,9 @@ class CameraFragment : BaseFragment() {
     /**
      * Handles the [CameraState.PreviewReady]
      */
-    private fun handleStatePreviewReady() {}
+    private fun handleStatePreviewReady() {
+        /* Do nothing here */
+    }
 
     /**
      * Handles the [CameraState.Error]
@@ -220,9 +223,6 @@ class CameraFragment : BaseFragment() {
         // Ratio
         val screenAspectRatio = this.getAspectRatio(metrics.widthPixels, metrics.heightPixels)
 
-        // Resolution
-        //val resolution = Size(metrics.widthPixels, metrics.heightPixels)
-
         // Rotation
         val rotation = this._rootView.fragment_camera_PreviewView.display.rotation
 
@@ -262,11 +262,9 @@ class CameraFragment : BaseFragment() {
     }
 
     /**
-     * Takes a picture
+     * Takes a picture thanks to the "Image Capture" use case
      */
     private fun takePicture() {
-//        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File(""))
-
         this._imageCapture?.takePicture(
             this._cameraExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
@@ -277,6 +275,15 @@ class CameraFragment : BaseFragment() {
                         this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
                         "Take Picture"
                     )
+
+                    /*
+                        The application is responsible for calling {@link ImageProxy#close()}
+                        to close the image.
+                        See: ImageCapture.OnImageCapturedCallback class
+                     */
+                    image.use {
+                        this@CameraFragment._viewModel.savePicture(image.planes[0].buffer)
+                    }
                 }
 
                 override fun onError(exception: ImageCaptureException) {

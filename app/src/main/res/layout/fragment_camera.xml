@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_normal"
         android:layout_gravity="bottom|center_horizontal"
-        android:src="@drawable/ic_camera"
+        android:src="@drawable/ic_photo_camera"
         style="@style/FABStyle"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
