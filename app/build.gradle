@@ -53,6 +53,10 @@ dependencies {
     implementation "androidx.camera:camera-view:1.0.0-alpha11"
     implementation "androidx.camera:camera-extensions:1.0.0-alpha11"
 
+    // Rx Android & Rx Kotlin
+    implementation "io.reactivex.rxjava2:rxandroid:$rx_android_version"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rx_kotlin_version"
+
     // Timber
     implementation "com.jakewharton.timber:timber:$timber_version"
 

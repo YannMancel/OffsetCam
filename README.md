@@ -29,6 +29,9 @@
     * [Navigation](https://developer.android.com/guide/navigation/)
   * [Behavior CameraX](https://developer.android.com/training/camerax)
 * [Library Material Components](https://github.com/material-components/material-components-android)
+* [Reactive programming](http://reactivex.io/)
+  * [Library RxAndroid](https://github.com/ReactiveX/RxAndroid)
+  * [Library RxKotlin](https://github.com/ReactiveX/RxKotlin)
 * [Library Timber](https://github.com/JakeWharton/timber)
 
 

@@ -14,6 +14,11 @@ import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
 import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_camera.view.*
 import timber.log.Timber
 import java.util.concurrent.ExecutorService
@@ -40,6 +45,7 @@ class CameraFragment : BaseFragment() {
 
     private lateinit var _viewModel: OffsetCamViewModel
     private lateinit var _cameraState: CameraState
+
     private var _oldSystemUiVisibility: Int = 0
 
     private lateinit var _cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
@@ -47,6 +53,9 @@ class CameraFragment : BaseFragment() {
     private var _preview: Preview? = null
     private var _imageCapture: ImageCapture? = null
     private lateinit var _cameraExecutor: ExecutorService
+    private var _imageProxy: ImageProxy? = null
+
+    private val _disposables by lazy { CompositeDisposable() }
 
     companion object {
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
@@ -95,6 +104,9 @@ class CameraFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        // Disposes all subscribers
+        this._disposables.dispose()
 
         // Shut down our background executor
         this._cameraExecutor.shutdown()
@@ -145,6 +157,8 @@ class CameraFragment : BaseFragment() {
             is CameraState.SetupCamera -> this.handleStateSetupCamera()
             is CameraState.PreviewReady -> this.handleStatePreviewReady()
             is CameraState.Error -> this.handleStateError(state)
+            is CameraState.Loading -> this.handleStateLoading()
+            is CameraState.PictureSaved -> this.handleStatePictureSaved()
         }
 
         // General state
@@ -177,6 +191,20 @@ class CameraFragment : BaseFragment() {
             this._rootView.fragment_camera_CoordinatorLayout,
             state._errorMessage
         )
+    }
+
+    /**
+     * Handles the [CameraState.Loading]
+     */
+    private fun handleStateLoading() {
+        /* Do nothing here */
+    }
+
+    /**
+     * Handles the [CameraState.PictureSaved]
+     */
+    private fun handleStatePictureSaved() {
+        /* Do nothing here */
     }
 
     // -- Camera --
@@ -269,23 +297,53 @@ class CameraFragment : BaseFragment() {
             this._cameraExecutor,
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
+                    // To can close it after the asynchronous process
+                    this@CameraFragment._imageProxy = image
 
-                    MessageTools.showMessageWithSnackbar(
-                        this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
-                        "Take Picture"
-                    )
-
+                    // With AsyncTask
                     /*
-                        The application is responsible for calling {@link ImageProxy#close()}
-                        to close the image.
-                        See: ImageCapture.OnImageCapturedCallback class
-                     */
-                    image.use {
-                        this@CameraFragment._viewModel.savePicture(
-                            it.planes[0].buffer,
-                            it.imageInfo.rotationDegrees
+                        this@CameraFragment._viewModel.savePictureWithAsyncTask(
+                            image.planes[0].buffer,
+                            image.imageInfo.rotationDegrees
                         )
+                     */
+
+                    // With Programming reactive
+                    this@CameraFragment._viewModel.savePictureWithSingle(
+                        image.planes[0].buffer,
+                        image.imageInfo.rotationDegrees
+                    )
+                    .doOnSubscribe {
+                        this@CameraFragment._viewModel.loading()
                     }
+                    .doAfterTerminate {
+                        /*
+                            The application is responsible for calling {@link ImageProxy#close()}
+                            to close the image.
+                            See: ImageCapture.OnImageCapturedCallback class
+                        */
+                        this@CameraFragment._imageProxy?.close()
+                    }
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeBy(
+                        onSuccess = {
+                            MessageTools.showMessageWithSnackbar(
+                                this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
+                                "Picture saved"
+                            )
+
+                            this@CameraFragment._viewModel.pictureSaved()
+                        },
+                        onError = { e ->
+                            Timber.d("onError")
+                            MessageTools.showMessageWithSnackbar(
+                                this@CameraFragment._rootView.fragment_camera_CoordinatorLayout,
+                                "Error saving file :${e.localizedMessage}"
+                            )
+                        }
+                    )
+                    .addTo(this@CameraFragment._disposables)
                 }
 
                 override fun onError(exception: ImageCaptureException) {

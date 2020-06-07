@@ -40,4 +40,22 @@ sealed class CameraState(
         _switchCameraVisible = switchCameraVisible,
         _cameraLensFacing = cameraLensFacing
     )
+
+    class Loading(
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
+    ) : CameraState(
+        _buttonEnable = false,
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
+    )
+
+    class PictureSaved(
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
+    ) : CameraState(
+        _buttonEnable = true,
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
+    )
 }
