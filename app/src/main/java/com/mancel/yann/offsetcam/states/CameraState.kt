@@ -58,4 +58,12 @@ sealed class CameraState(
         _switchCameraVisible = switchCameraVisible,
         _cameraLensFacing = cameraLensFacing
     )
+
+    class LensFacingSwitch(
+        switchCameraVisible: Boolean,
+        cameraLensFacing: Int
+    ) : CameraState(
+        _switchCameraVisible = switchCameraVisible,
+        _cameraLensFacing = cameraLensFacing
+    )
 }

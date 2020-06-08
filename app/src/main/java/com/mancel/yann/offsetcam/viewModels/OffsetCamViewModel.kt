@@ -1,6 +1,7 @@
 package com.mancel.yann.offsetcam.viewModels
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -27,12 +28,14 @@ import java.nio.ByteBuffer
  *
  * A [ViewModel] subclass.
  */
-class OffsetCamViewModel : ViewModel() {
+class OffsetCamViewModel(
+    private val _cameraCount: Int
+) : ViewModel() {
 
     // FIELDS --------------------------------------------------------------------------------------
 
     private var _cameraState: MutableLiveData<CameraState>? = null
-    private var _switchCameraVisible = true
+    private val _switchCameraVisible = this._cameraCount >= 2
     private var _cameraLensFacing: Int = CameraSelector.LENS_FACING_BACK
 
     // METHODS -------------------------------------------------------------------------------------
@@ -105,6 +108,44 @@ class OffsetCamViewModel : ViewModel() {
                 cameraLensFacing = this._cameraLensFacing
             )
         )
+    }
+
+    /**
+     * Manages the lens facing switch of the camera
+     */
+    private fun lensFacingSwitch() {
+        this._cameraState?.value = CameraState.LensFacingSwitch(
+            switchCameraVisible = this._switchCameraVisible,
+            cameraLensFacing = this._cameraLensFacing
+        )
+    }
+
+    // -- Camera Lens Facing --
+
+    fun switchCameraLensFacing(resources: Resources) {
+        // Error
+        if (!this._switchCameraVisible) {
+            this._cameraState?.value = CameraState.Error(
+                _errorMessage = resources.getQuantityString(
+                    R.plurals.lens_facing_error_camera_state,
+                    this._cameraCount
+                ),
+                switchCameraVisible = this._switchCameraVisible,
+                cameraLensFacing = this._cameraLensFacing
+            )
+
+            return
+        }
+
+        // Switch
+        this._cameraLensFacing =
+            if(this._cameraLensFacing == CameraSelector.LENS_FACING_BACK)
+                CameraSelector.LENS_FACING_FRONT
+            else
+                CameraSelector.LENS_FACING_BACK
+
+        // Change of camera state
+        this.lensFacingSwitch()
     }
 
     // -- Image --

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- OffsetCamViewModel.kt -->
+    <plurals name="lens_facing_error_camera_state">
+        <item quantity="one">Cannot switch camera, your device has only 1 camera!</item>
+        <item quantity="other">Cannot switch camera, your device has only %d cameras!</item>
+    </plurals>
+
+</resources>

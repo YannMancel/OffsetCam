@@ -49,4 +49,14 @@
         android:src="@drawable/ic_collections"
         android:contentDescription="@null" />
 
+    <!-- ImageButton: Camera switch -->
+    <ImageButton
+        android:id="@+id/fragment_camera_switch_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_normal"
+        android:layout_gravity="top|end"
+        android:src="@drawable/ic_camera_switch"
+        android:contentDescription="@null" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

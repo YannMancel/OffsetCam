@@ -2,6 +2,8 @@ package com.mancel.yann.offsetcam.views.fragments
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
@@ -9,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.common.util.concurrent.ListenableFuture
@@ -16,6 +19,7 @@ import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
 import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModel
+import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
@@ -41,6 +45,7 @@ class CameraFragment : BaseFragment() {
             [1] https://developer.android.com/training/camerax
             [2] https://codelabs.developers.google.com/codelabs/camerax-getting-started
             [3] https://github.com/android/camera-samples/tree/master/CameraXBasic
+            [4] https://www.udemy.com/course/android-sensors-cas-pratiques-dapplications
      */
 
     // FIELDS --------------------------------------------------------------------------------------
@@ -124,6 +129,11 @@ class CameraFragment : BaseFragment() {
         this._rootView.fragment_camera_FAB.setOnClickListener {
             this.takePicture()
         }
+
+        // Switch camera button
+        this._rootView.fragment_camera_switch_button.setOnClickListener {
+            this.switchCamera()
+        }
     }
 
     // -- LiveData --
@@ -132,10 +142,18 @@ class CameraFragment : BaseFragment() {
      * Configures the [CameraState]
      */
     private fun configureCameraState() {
-        this._viewModel = ViewModelProvider(this@CameraFragment).get(
+        // Camera manager
+        val cameraManager = this.requireActivity().getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+        // Factory
+        val factory = OffsetCamViewModelFactory(cameraManager.cameraIdList.size)
+
+        // ViewModel
+        this._viewModel = ViewModelProvider(this@CameraFragment, factory).get(
                               OffsetCamViewModel::class.java
                           )
 
+        // Camera state
         this._viewModel.getCameraState().observe(
             this.viewLifecycleOwner,
             Observer {
@@ -161,12 +179,16 @@ class CameraFragment : BaseFragment() {
             is CameraState.Error -> this.handleStateError(state)
             is CameraState.Loading -> this.handleStateLoading()
             is CameraState.PictureSaved -> this.handleStatePictureSaved()
+            is CameraState.LensFacingSwitch -> this.handleStateLensFacingSwitch()
         }
 
         // General state
         with(state) {
             // FAB
             this@CameraFragment._rootView.fragment_camera_FAB.isEnabled = this._buttonEnable
+
+            // Switch camera
+            this@CameraFragment._rootView.fragment_camera_switch_button.isVisible = this._switchCameraVisible
         }
     }
 
@@ -180,9 +202,7 @@ class CameraFragment : BaseFragment() {
     /**
      * Handles the [CameraState.PreviewReady]
      */
-    private fun handleStatePreviewReady() {
-        /* Do nothing here */
-    }
+    private fun handleStatePreviewReady() { /* Do nothing here */ }
 
     /**
      * Handles the [CameraState.Error]
@@ -198,9 +218,7 @@ class CameraFragment : BaseFragment() {
     /**
      * Handles the [CameraState.Loading]
      */
-    private fun handleStateLoading() {
-        /* Do nothing here */
-    }
+    private fun handleStateLoading() { /* Do nothing here */ }
 
     /**
      * Handles the [CameraState.PictureSaved]
@@ -218,6 +236,11 @@ class CameraFragment : BaseFragment() {
         }
         .start()
     }
+
+    /**
+     * Handles the [CameraState.LensFacingSwitch]
+     */
+    private fun handleStateLensFacingSwitch() = this.handleStateSetupCamera()
 
     // -- Camera --
 
@@ -364,6 +387,13 @@ class CameraFragment : BaseFragment() {
             }
         )
     }
+
+    /**
+     * Switches camera
+     */
+    private fun switchCamera() = this._viewModel.switchCameraLensFacing(this.resources)
+
+    // -- Ratio --
 
     /**
      *  [androidx.camera.core.ImageAnalysisConfig] requires enum value of
