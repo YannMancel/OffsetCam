@@ -1,5 +1,7 @@
 package com.mancel.yann.offsetcam.views.fragments
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
@@ -204,7 +206,17 @@ class CameraFragment : BaseFragment() {
      * Handles the [CameraState.PictureSaved]
      */
     private fun handleStatePictureSaved() {
-        /* Do nothing here */
+        ObjectAnimator.ofFloat(
+            this._rootView.fragment_camera_gallery_button,
+            View.ALPHA,
+            0F, 1F
+        )
+        .apply {
+            duration = 500
+            repeatCount = 2
+            repeatMode = ValueAnimator.REVERSE
+        }
+        .start()
     }
 
     // -- Camera --

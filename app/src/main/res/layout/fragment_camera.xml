@@ -38,4 +38,15 @@
         android:src="@drawable/ic_photo_camera"
         style="@style/FABStyle"/>
 
+    <!-- ImageButton: Gallery button -->
+    <ImageButton
+        android:id="@+id/fragment_camera_gallery_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_normal"
+        android:layout_gravity="bottom|end"
+        app:layout_dodgeInsetEdges="bottom"
+        android:src="@drawable/ic_collections"
+        android:contentDescription="@null" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
