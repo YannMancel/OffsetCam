@@ -28,7 +28,7 @@ import java.nio.ByteBuffer
  *
  * A [ViewModel] subclass.
  */
-class OffsetCamViewModel(
+class CameraViewModel(
     private val _cameraCount: Int
 ) : ViewModel() {
 

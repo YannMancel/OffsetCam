@@ -8,10 +8,24 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/navigation_cameraFragment">
 
+    <!-- fragment: CameraFragment -->
     <fragment
         android:id="@+id/navigation_cameraFragment"
         android:name="com.mancel.yann.offsetcam.views.fragments.CameraFragment"
         android:label="@string/navigation_camera_fragment_title"
-        tools:layout="@layout/fragment_camera" />
+        tools:layout="@layout/fragment_camera" >
+
+        <action
+            android:id="@+id/action_navigation_cameraFragment_to_galleryFragment"
+            app:destination="@id/navigation_galleryFragment" />
+
+    </fragment>
+
+    <!-- fragment: GalleryFragment -->
+    <fragment
+        android:id="@+id/navigation_galleryFragment"
+        android:name="com.mancel.yann.offsetcam.views.fragments.GalleryFragment"
+        android:label="fragment_gallery"
+        tools:layout="@layout/fragment_gallery" />
 
 </navigation>

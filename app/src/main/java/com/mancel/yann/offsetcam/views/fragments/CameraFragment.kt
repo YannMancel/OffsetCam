@@ -14,11 +14,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.common.util.concurrent.ListenableFuture
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.states.CameraState
 import com.mancel.yann.offsetcam.utils.MessageTools
-import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModel
+import com.mancel.yann.offsetcam.viewModels.CameraViewModel
 import com.mancel.yann.offsetcam.viewModels.OffsetCamViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -50,7 +51,7 @@ class CameraFragment : BaseFragment() {
 
     // FIELDS --------------------------------------------------------------------------------------
 
-    private lateinit var _viewModel: OffsetCamViewModel
+    private lateinit var _viewModel: CameraViewModel
     private lateinit var _cameraState: CameraState
 
     private var _oldSystemUiVisibility: Int = 0
@@ -134,6 +135,11 @@ class CameraFragment : BaseFragment() {
         this._rootView.fragment_camera_switch_button.setOnClickListener {
             this.switchCamera()
         }
+
+        // Gallery button
+        this._rootView.fragment_camera_gallery_button.setOnClickListener {
+            this.navigateToGalleryFragment()
+        }
     }
 
     // -- LiveData --
@@ -150,7 +156,7 @@ class CameraFragment : BaseFragment() {
 
         // ViewModel
         this._viewModel = ViewModelProvider(this@CameraFragment, factory).get(
-                              OffsetCamViewModel::class.java
+                              CameraViewModel::class.java
                           )
 
         // Camera state
@@ -413,5 +419,16 @@ class CameraFragment : BaseFragment() {
         }
 
         return AspectRatio.RATIO_16_9
+    }
+
+    // -- Navigation to another fragment --
+
+    /**
+     * Navigates to another fragment
+     */
+    private fun navigateToGalleryFragment() {
+        // By action (Safe Args)
+        val action = CameraFragmentDirections.actionNavigationCameraFragmentToGalleryFragment()
+        this.findNavController().navigate(action)
     }
 }

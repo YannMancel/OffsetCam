@@ -20,8 +20,8 @@ class OffsetCamViewModelFactory(
     // -- ViewModelProvider.Factory interface --
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(OffsetCamViewModel::class.java))
-            return OffsetCamViewModel(this._cameraCount) as T
+        if (modelClass.isAssignableFrom(CameraViewModel::class.java))
+            return CameraViewModel(this._cameraCount) as T
         throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
     }
 }
