@@ -1,21 +1,29 @@
 package com.mancel.yann.offsetcam.views.fragments
 
+import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import com.mancel.yann.offsetcam.R
+import com.mancel.yann.offsetcam.models.Picture
+import com.mancel.yann.offsetcam.states.GalleryState
 import com.mancel.yann.offsetcam.viewModels.GalleryViewModel
+import com.mancel.yann.offsetcam.views.adapters.AdapterCallback
+import com.mancel.yann.offsetcam.views.adapters.PictureAdapter
+import kotlinx.android.synthetic.main.fragment_gallery.view.*
 
 /**
  * Created by Yann MANCEL on 08/06/2020.
  * Name of the project: OffsetCam
  * Name of the package: com.mancel.yann.offsetcam.views.fragments
  *
- * A [BaseFragment] subclass.
+ * A [BaseFragment] subclass which implements [AdapterCallback].
  */
-class GalleryFragment : BaseFragment() {
+class GalleryFragment : BaseFragment(), AdapterCallback {
 
     // FIELDS --------------------------------------------------------------------------------------
 
+    private lateinit var _adapter: PictureAdapter
     private lateinit var _viewModel: GalleryViewModel
 
     // METHODS -------------------------------------------------------------------------------------
@@ -24,8 +32,35 @@ class GalleryFragment : BaseFragment() {
 
     override fun getFragmentLayout(): Int = R.layout.fragment_gallery
 
-    override fun configureDesign() {
-        this.configureGalleryState()
+    override fun configureDesign(savedInstanceState: Bundle?) {
+        this.configureRecyclerView()
+        this.configureGalleryState(savedInstanceState)
+    }
+
+    // -- AdapterCallback --
+
+    override fun onDataChanged() { /* Do nothing here */ }
+
+    override fun pictureClicked(picture: Picture) { /* Do nothing here */ }
+
+    // -- RecyclerView --
+
+    /**
+     * Configures the RecyclerView
+     */
+    private fun configureRecyclerView() {
+        // Adapter
+        this._adapter = PictureAdapter(_callback = this@GalleryFragment)
+
+        // RecyclerView
+        with(this._rootView.fragment_gallery_RecyclerView) {
+            setHasFixedSize(true)
+            layoutManager = GridLayoutManager(
+                this@GalleryFragment.requireContext(),
+                3
+            )
+            adapter = this@GalleryFragment._adapter
+        }
     }
 
     // -- LiveData --
@@ -33,7 +68,7 @@ class GalleryFragment : BaseFragment() {
     /**
      * Configures the [GalleryState]
      */
-    private fun configureGalleryState() {
+    private fun configureGalleryState(savedInstanceState: Bundle?) {
         // ViewModel
         this._viewModel = ViewModelProvider(this@GalleryFragment).get(
                               GalleryViewModel::class.java
@@ -43,8 +78,35 @@ class GalleryFragment : BaseFragment() {
         this._viewModel.getGalleryState().observe(
             this.viewLifecycleOwner,
             Observer {
-                /* Do something here */
+                this.updateUI(it)
             }
         )
+
+        if (savedInstanceState == null)
+            this._viewModel.loadPictures()
+        else
+            this._viewModel.pictureReady()
+    }
+
+    // -- UI --
+
+    /**
+     * Updates the UI according a [GalleryState]
+     * @param state a [GalleryState]
+     */
+    private fun updateUI(state: GalleryState) {
+        // Specific state
+        when (state) {
+            is GalleryState.PictureReady -> this.handleStatePictureReady(state)
+        }
+    }
+
+    // -- State --
+
+    /**
+     * Handles the [GalleryState.PictureReady]
+     */
+    private fun handleStatePictureReady(state: GalleryState.PictureReady) {
+        this._adapter.updateData(state._pictures)
     }
 }

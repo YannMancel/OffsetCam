@@ -64,6 +64,9 @@ dependencies {
     // Timber
     implementation "com.jakewharton.timber:timber:$timber_version"
 
+    // Picasso
+    implementation "com.squareup.picasso:picasso:$picasso_version"
+
     // TESTS ---------------------------------------------------------------------------------------
 
     testImplementation 'junit:junit:4.12'

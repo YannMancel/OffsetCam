@@ -3,7 +3,10 @@ package com.mancel.yann.offsetcam.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.mancel.yann.offsetcam.OffsetCameraApplication
+import com.mancel.yann.offsetcam.models.Picture
 import com.mancel.yann.offsetcam.states.GalleryState
+import com.mancel.yann.offsetcam.utils.FileTools
 
 /**
  * Created by Yann MANCEL on 08/06/2020.
@@ -17,6 +20,7 @@ class GalleryViewModel : ViewModel() {
     // FIELDS --------------------------------------------------------------------------------------
 
     private var _galleryState: MutableLiveData<GalleryState>? = null
+    private val _pictures = mutableListOf<Picture>()
 
     // METHODS -------------------------------------------------------------------------------------
 
@@ -37,9 +41,27 @@ class GalleryViewModel : ViewModel() {
     /**
      * Manages the setup of the camera
      */
-    fun setupCamera() {
+    fun pictureReady() {
         this._galleryState?.value = GalleryState.PictureReady(
-            _pictures = listOf()
+            _pictures = this._pictures
         )
+    }
+
+    // -- File --
+
+    /**
+     * loads the pictures
+     */
+    fun loadPictures() {
+        val files = FileTools.getJpegFilesFromDir(OffsetCameraApplication.galleryDir)
+
+        with(this._pictures) {
+            clear()
+            files.forEach { file ->
+                this.add(Picture(file))
+            }
+        }
+
+        this.pictureReady()
     }
 }

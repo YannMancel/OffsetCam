@@ -33,6 +33,7 @@
   * [Library RxAndroid](https://github.com/ReactiveX/RxAndroid)
   * [Library RxKotlin](https://github.com/ReactiveX/RxKotlin)
 * [Library Timber](https://github.com/JakeWharton/timber)
+* [Library Picasso](https://github.com/square/picasso)
 
 
 ## Troubleshooting

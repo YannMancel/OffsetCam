@@ -76,7 +76,7 @@ class CameraFragment : BaseFragment() {
 
     override fun getFragmentLayout(): Int = R.layout.fragment_camera
 
-    override fun configureDesign() {
+    override fun configureDesign(savedInstanceState: Bundle?) {
         this.configureListeners()
         this.configureCameraState()
     }
