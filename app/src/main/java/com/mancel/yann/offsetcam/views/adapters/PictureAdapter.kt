@@ -68,6 +68,11 @@ class PictureAdapter(
         this._callback?.onDataChanged()
     }
 
+    /**
+     * Gets all [Picture]
+     */
+    fun getPictures(): List<Picture> = this._pictures
+
     // NESTED CLASSES ------------------------------------------------------------------------------
 
     /**

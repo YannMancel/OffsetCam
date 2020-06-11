@@ -428,7 +428,7 @@ class CameraFragment : BaseFragment() {
      */
     private fun navigateToGalleryFragment() {
         // By action (Safe Args)
-        val action = CameraFragmentDirections.actionNavigationCameraFragmentToGalleryFragment()
+        val action = CameraFragmentDirections.actionFromCameraFragmentToGalleryFragment()
         this.findNavController().navigate(action)
     }
 }

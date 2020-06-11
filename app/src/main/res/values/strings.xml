@@ -1,13 +1,17 @@
-
 <resources>
 
     <string name="app_name">OffsetCam</string>
 
     <!-- nav_graph.xml -->
-    <string name="navigation_camera_fragment_title">Camera</string>
+    <string name="camera_fragment_name">Camera</string>
+    <string name="gallery_fragment_name">Gallery</string>
+    <string name="picture_slider_fragment_name">Picture</string>
 
     <!-- BaseFragment.kt -->
     <string name="permission_denied">Permission denied</string>
+
+    <!-- GalleryFragment.kt -->
+    <string name="no_picture_into_gallery">No picture!</string>
 
     <!-- OffsetCamViewModel.kt -->
     <string name="error_camera_state">Permission denied: Cannot take pictures!</string>

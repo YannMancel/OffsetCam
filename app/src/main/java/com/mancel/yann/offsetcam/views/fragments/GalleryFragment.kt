@@ -3,10 +3,12 @@ package com.mancel.yann.offsetcam.views.fragments
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.models.Picture
 import com.mancel.yann.offsetcam.states.GalleryState
+import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.viewModels.GalleryViewModel
 import com.mancel.yann.offsetcam.views.adapters.AdapterCallback
 import com.mancel.yann.offsetcam.views.adapters.PictureAdapter
@@ -39,9 +41,30 @@ class GalleryFragment : BaseFragment(), AdapterCallback {
 
     // -- AdapterCallback --
 
-    override fun onDataChanged() { /* Do nothing here */ }
+    override fun onDataChanged() {
+        // No data
+        if (this._adapter.itemCount == 0) {
+            MessageTools.showMessageWithSnackbar(
+                this._rootView.fragment_gallery_CoordinatorLayout,
+                this.getString(R.string.no_picture_into_gallery)
+            )
+        }
+    }
 
-    override fun pictureClicked(picture: Picture) { /* Do nothing here */ }
+    override fun pictureClicked(picture: Picture) {
+        // Pictures
+        val pictures = this._adapter.getPictures()
+
+        // Current index
+        val index = pictures.indexOf(picture)
+
+        // By action (Safe Args)
+        val action = GalleryFragmentDirections.actionFromGalleryFragmentToPictureSliderFragment(
+            index,
+            pictures.toTypedArray()
+        )
+        this.findNavController().navigate(action)
+    }
 
     // -- RecyclerView --
 

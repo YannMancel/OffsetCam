@@ -12,11 +12,11 @@
     <fragment
         android:id="@+id/navigation_cameraFragment"
         android:name="com.mancel.yann.offsetcam.views.fragments.CameraFragment"
-        android:label="@string/navigation_camera_fragment_title"
+        android:label="@string/camera_fragment_name"
         tools:layout="@layout/fragment_camera" >
 
         <action
-            android:id="@+id/action_navigation_cameraFragment_to_galleryFragment"
+            android:id="@+id/action_from_cameraFragment_to_galleryFragment"
             app:destination="@id/navigation_galleryFragment" />
 
     </fragment>
@@ -25,7 +25,31 @@
     <fragment
         android:id="@+id/navigation_galleryFragment"
         android:name="com.mancel.yann.offsetcam.views.fragments.GalleryFragment"
-        android:label="fragment_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:label="@string/gallery_fragment_name"
+        tools:layout="@layout/fragment_gallery" >
+
+        <action
+            android:id="@+id/action_from_galleryFragment_to_pictureSliderFragment"
+            app:destination="@id/navigation_pictureSliderFragment" />
+
+    </fragment>
+
+    <!-- fragment: PictureSliderFragment -->
+    <fragment
+        android:id="@+id/navigation_pictureSliderFragment"
+        android:name="com.mancel.yann.offsetcam.views.fragments.PictureSliderFragment"
+        android:label="@string/picture_slider_fragment_name"
+        tools:layout="@layout/fragment_slider_picture" >
+
+        <argument
+            android:name="currentItemIndex"
+            app:argType="integer"
+            android:defaultValue="0" />
+
+        <argument
+            android:name="pictures"
+            app:argType="com.mancel.yann.offsetcam.models.Picture[]" />
+
+    </fragment>
 
 </navigation>
