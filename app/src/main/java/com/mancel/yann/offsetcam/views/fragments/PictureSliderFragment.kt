@@ -1,9 +1,11 @@
 package com.mancel.yann.offsetcam.views.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import androidx.core.content.FileProvider
 import com.mancel.yann.offsetcam.R
 import com.mancel.yann.offsetcam.utils.MessageTools
 import com.mancel.yann.offsetcam.views.adapters.PictureSliderAdapter
@@ -54,6 +56,10 @@ class PictureSliderFragment : BaseFragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.menu_toolbar_action_share -> {
+                this.handleShareAction()
+                true
+            }
             R.id.menu_toolbar_action_delete -> {
                 this.handleDeleteAction()
                 true
@@ -88,10 +94,41 @@ class PictureSliderFragment : BaseFragment() {
      * Handle the delete icon into the toolbar
      */
     private fun handleDeleteAction() {
-        DeleteDialogFragment {
-            this.deleteCurrentPicture()
+        DeleteDialogFragment { this.deleteCurrentPicture() }
+            .show(this.parentFragmentManager, "Delete dialog")
+    }
+
+    /**
+     * Handle the share icon into the toolbar
+     */
+    private fun handleShareAction() {
+        // Picture
+        val currentIndex = this._rootView.fragment_picture_ViewPager.currentItem
+        val currentPicture = this._pictures[currentIndex]
+
+        // Uri
+        val pictureUri = FileProvider.getUriForFile(
+            this.requireContext(),
+            this.getString(R.string.file_provider_authorities),
+            currentPicture.file
+        )
+
+        // Intent
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, pictureUri)
+            type = "image/*"
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or
+                        Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        .show(this.parentFragmentManager, "Delete dialog")
+
+        this.startActivity(
+            Intent.createChooser(
+                intent,
+                this.getString(R.string.title_share_dialog)
+            )
+        )
     }
 
     // -- Picture --
