@@ -36,6 +36,10 @@ class PictureSliderAdapter(
 
     override fun getCount(): Int = this._pictures.size
 
+    override fun getItemPosition(`object`: Any): Int {
+        return POSITION_NONE
+    }
+
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val view = this._inflater.inflate(R.layout.item_picture, container, false)
         val picture = this._pictures[position]

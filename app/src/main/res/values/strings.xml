@@ -7,6 +7,9 @@
     <string name="gallery_fragment_name">Gallery</string>
     <string name="picture_slider_fragment_name">Picture</string>
 
+    <!-- menu_toolbar.xml -->
+    <string name="remove_toolbar_menu">Delete picture</string>
+
     <!-- BaseFragment.kt -->
     <string name="permission_denied">Permission denied</string>
 
@@ -15,5 +18,10 @@
 
     <!-- OffsetCamViewModel.kt -->
     <string name="error_camera_state">Permission denied: Cannot take pictures!</string>
+
+    <!-- PictureSliderFragment.kt -->
+    <string name="title_delete_dialog">Do you really want to delete this picture?</string>
+    <string name="positive_button_delete_dialog">Delete this picture</string>
+    <string name="snackbar_delete_action">Picture successfully deleted</string>
 
 </resources>
