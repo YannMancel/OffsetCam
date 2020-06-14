@@ -3,6 +3,15 @@
 **Goal**: Create an application allowing to use the cameras of your device then to take pictures.
 
 
+## Phone display
+<p align="middle">
+     <img src="./screenshots/record.gif" width="30%" height="30%">
+</p>
+<p align="middle">
+     <img src="./screenshots/phone_1.png" width="30%" height="30%"> <img src="./screenshots/phone_2.png" width="30%" height="30%"> <img src="./screenshots/phone_3.png" width="30%" height="30%">
+</p>
+
+
 ## Requirements
 * Computer (Windows, Mac or Linux)
 * Android Studio
