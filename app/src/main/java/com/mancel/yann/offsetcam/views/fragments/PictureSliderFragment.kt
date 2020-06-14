@@ -7,7 +7,9 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.core.content.FileProvider
 import com.mancel.yann.offsetcam.R
+import com.mancel.yann.offsetcam.animations.DepthPageTransformer
 import com.mancel.yann.offsetcam.utils.MessageTools
+import com.mancel.yann.offsetcam.views.adapters.PictureAdapter
 import com.mancel.yann.offsetcam.views.adapters.PictureSliderAdapter
 import com.mancel.yann.offsetcam.views.dialogs.DeleteDialogFragment
 import kotlinx.android.synthetic.main.fragment_slider_picture.view.*
@@ -21,6 +23,15 @@ import kotlinx.android.synthetic.main.fragment_slider_picture.view.*
  */
 class PictureSliderFragment : BaseFragment() {
 
+    /*
+        Important: (To display a View)
+            Old version: ViewPager  + PagerAdapter
+            New version: ViewPager2 + RecyclerView.Adapter
+
+        See:
+            [1] https://developer.android.com/training/animation/vp2-migration
+     */
+
     // FIELDS --------------------------------------------------------------------------------------
 
     private val _currentItemIndex by lazy {
@@ -31,7 +42,8 @@ class PictureSliderFragment : BaseFragment() {
         PictureSliderFragmentArgs.fromBundle(this.requireArguments()).pictures.toMutableList()
     }
 
-    private lateinit var _adapter: PictureSliderAdapter
+//    private lateinit var _adapter: PictureSliderAdapter
+    private lateinit var _adapter: PictureAdapter
 
     // METHODS -------------------------------------------------------------------------------------
 
@@ -74,18 +86,34 @@ class PictureSliderFragment : BaseFragment() {
      * Configure the ViewPager
      */
     private fun configureViewPager() {
-        // Adapter
-        this._adapter = PictureSliderAdapter(
-            this.requireContext(),
-            this._pictures
-        )
 
-        // ViewPager
-        this._rootView.fragment_picture_ViewPager.adapter = this._adapter
+        /*
+            // Adapter
+            this._adapter = PictureSliderAdapter(
+                this.requireContext(),
+                this._pictures
+            )
+
+            // ViewPager
+            this._rootView.fragment_picture_ViewPager.adapter = this._adapter
+
+            // Update UI
+            this._adapter.notifyDataSetChanged()
+            this._rootView.fragment_picture_ViewPager.currentItem = this._currentItemIndex
+        */
+
+        // Adapter
+        this._adapter = PictureAdapter(_displayMode = PictureAdapter.DisplayMode.SLIDER_MODE)
+
+        // ViewPager2
+        this._rootView.fragment_picture_ViewPager2.adapter = this._adapter
 
         // Update UI
-        this._adapter.notifyDataSetChanged()
-        this._rootView.fragment_picture_ViewPager.currentItem = this._currentItemIndex
+        this._adapter.updateData(this._pictures)
+        this._rootView.fragment_picture_ViewPager2.currentItem = this._currentItemIndex
+
+        // Animation
+        this._rootView.fragment_picture_ViewPager2.setPageTransformer(DepthPageTransformer())
     }
 
     // -- Action --
@@ -103,7 +131,7 @@ class PictureSliderFragment : BaseFragment() {
      */
     private fun handleShareAction() {
         // Picture
-        val currentIndex = this._rootView.fragment_picture_ViewPager.currentItem
+        val currentIndex = this._rootView.fragment_picture_ViewPager2.currentItem
         val currentPicture = this._pictures[currentIndex]
 
         // Uri
@@ -143,7 +171,7 @@ class PictureSliderFragment : BaseFragment() {
         }
 
         // Index
-        val currentIndex = this._rootView.fragment_picture_ViewPager.currentItem
+        val currentIndex = this._rootView.fragment_picture_ViewPager2.currentItem
 
         val nextIndex =
             if (currentIndex == (this._pictures.size - 1))
@@ -158,8 +186,8 @@ class PictureSliderFragment : BaseFragment() {
         this._pictures.removeAt(currentIndex)
 
         // Update UI
-        this._adapter.notifyDataSetChanged()
-        this._rootView.fragment_picture_ViewPager.currentItem = nextIndex
+        this._adapter.updateData(this._pictures)
+        this._rootView.fragment_picture_ViewPager2.currentItem = nextIndex
 
         MessageTools.showMessageWithSnackbar(
             this._rootView.fragment_picture_CoordinatorLayout,

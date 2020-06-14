@@ -19,8 +19,15 @@ import java.lang.ref.WeakReference
  * A [RecyclerView.Adapter] subclass.
  */
 class PictureAdapter(
+    private val _displayMode: DisplayMode = DisplayMode.GALLERY_MODE,
     private val _callback: AdapterCallback? = null
 ) : RecyclerView.Adapter<PictureAdapter.PictureViewHolder>() {
+
+    // Note: With ViewPager2, the dimensions of root XML layout must be in match_parent.
+
+    // ENUMS ---------------------------------------------------------------------------------------
+
+    enum class DisplayMode { GALLERY_MODE, SLIDER_MODE }
 
     // FIELDS --------------------------------------------------------------------------------------
 
@@ -31,9 +38,14 @@ class PictureAdapter(
     // -- RecyclerView.Adapter --
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PictureViewHolder {
+        // Display mode
+        val layout = when (this._displayMode) {
+            DisplayMode.GALLERY_MODE -> R.layout.item_picture
+            DisplayMode.SLIDER_MODE -> R.layout.item_picture_slider
+        }
+
         // Creates the View thanks to the inflater
-        val view = LayoutInflater.from(parent.context)
-                                 .inflate(R.layout.item_picture, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
 
         return PictureViewHolder(view, WeakReference(this._callback))
     }
